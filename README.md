@@ -61,9 +61,9 @@ python app.py
 pip download numpy pandas --platform win_amd64 --python-version 311 --only-binary=:all:
 ```
 
-**离线安装命令**（在离线电脑执行）：
+**离线安装命令**（在离线电脑执行，确保终端已进入whl文件所在目录）：
 ```bash
-pip install --no-index --find-links=./wheels numpy pandas
+pip install --no-index --find-links=. numpy pandas
 ```
 
 或点击"生成下载链接"获取PyPI直链，直接下载.whl文件。
@@ -84,15 +84,16 @@ pip download numpy pandas matplotlib scikit-learn scipy --platform win_amd64 --p
 
 ### 2. 传输文件
 
-将 `wheels` 文件夹复制到U盘中。
+将下载好的所有 `.whl` 文件复制到U盘中，带到离线电脑上。
 
 ### 3. 在离线电脑上
 
 ```bash
-# 进入wheels目录
-cd wheels
+# 打开终端（cmd 或 PowerShell），进入你存放 .whl 文件的目录
+# 比如你把文件放在了桌面的 pyp\11 文件夹下：
+cd C:\Users\ASUS\Desktop\pyp\11
 
-# 安装所有包
+# 安装所有包（注意 find-links 后面的 . 代表当前目录）
 pip install --no-index --find-links=. numpy pandas matplotlib scikit-learn scipy
 ```
 

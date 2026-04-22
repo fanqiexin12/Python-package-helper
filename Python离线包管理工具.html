@@ -379,8 +379,9 @@
                     <li><strong>获取下载链接：</strong>点击"生成下载链接"，会显示每个包在PyPI的下载页面</li>
                     <li><strong>下载包文件：</strong>访问链接下载对应平台的 .whl 文件</li>
                     <li><strong>传输文件：</strong>将所有 .whl 文件复制到U盘中</li>
-                    <li><strong>离线电脑上：</strong>将 .whl 文件放到一个文件夹（如 <code>wheels</code>）</li>
-                    <li><strong>安装命令：</strong>使用 <code>pip install --no-index --find-links=./wheels 包名1 包名2 ...</code> 进行离线安装</li>
+                    <li><strong>离线电脑上：</strong>将所有下载的 .whl 文件放到同一个文件夹中</li>
+                    <li><strong>打开终端：</strong>在离线电脑上，使用终端（cmd/PowerShell）进入该文件夹所在路径</li>
+                    <li><strong>安装命令：</strong>在终端中执行 <code>pip install --no-index --find-links=. 包名1 包名2 ...</code></li>
                 </ol>
             </div>
 
@@ -547,8 +548,8 @@
             };
 
             const downloadCmd = `pip download ${packageNames.join(' ')} --platform ${platform} --python-version ${pyVersion.replace('.', '')} --only-binary=:all:`;
-            const installCmd = `pip install --no-index --find-links=./wheels ${packageNames.join(' ')}`;
-            const downloadSingleCmd = packageNames.map(p => `pip download ${p} --dest ./wheels`).join('\n');
+            const installCmd = `pip install --no-index --find-links=. ${packageNames.join(' ')}`;
+            const downloadSingleCmd = packageNames.map(p => `pip download ${p} --dest .`).join('\n');
 
             commandsOutput.innerHTML = `
                 <div class="command">

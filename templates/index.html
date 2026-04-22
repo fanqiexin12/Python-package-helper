@@ -334,8 +334,9 @@
                     <li><strong>在联网电脑上：</strong>选择你的目标系统和Python版本，添加需要下载的包，点击"直接下载包"获取.whl文件</li>
                     <li><strong>复制命令：</strong>也可以点击"生成命令"获取pip下载命令，在联网电脑上执行</li>
                     <li><strong>传输文件：</strong>将下载的.whl文件或包含所有包的文件夹复制到U盘中</li>
-                    <li><strong>离线电脑上：</strong>将.whl文件放到一个文件夹（如 <code>wheels</code>），然后运行安装命令</li>
-                    <li><strong>安装命令：</strong>使用 <code>pip install --no-index --find-links=./wheels 包名</code> 进行离线安装</li>
+                    <li><strong>离线电脑上：</strong>将所有下载的.whl文件放到同一个文件夹中</li>
+                    <li><strong>打开终端：</strong>在离线电脑上，使用终端（cmd/PowerShell）进入该文件夹所在路径</li>
+                    <li><strong>安装命令：</strong>在终端中执行 <code>pip install --no-index --find-links=. 包名</code></li>
                 </ol>
             </div>
 

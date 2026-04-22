@@ -219,7 +219,7 @@ def api_commands():
     package_list = [p.strip() for p in packages.split(',') if p.strip()]
 
     download_cmd = f"pip download {' '.join(package_list)} --platform {platform} --python-version {py_version.replace('.', '')} --only-binary=:all:"
-    install_cmd = f"pip install --no-index --find-links=/path/to/wheels {' '.join(package_list)}"
+    install_cmd = f"pip install --no-index --find-links=. {' '.join(package_list)}"
 
     return jsonify({
         'download_command': download_cmd,
