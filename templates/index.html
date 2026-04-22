@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python离线包管理工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+        }
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        select, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .package-list {
+            margin-top: 20px;
+        }
+        .package-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .package-item .package-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .package-item .package-version {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .package-item .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .commands-output {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .commands-output .command {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #3d3d3d;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        .commands-output .command-label {
+            color: #50fa7b;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .search-section {
+            position: relative;
+        }
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+        .search-results.active {
+            display: block;
+        }
+        .search-result-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .search-result-item:hover {
+            background: #f0f0ff;
+        }
+        .search-result-item .name {
+            font-weight: 600;
+            color: #333;
+        }
+        .search-result-item .version {
+            color: #667eea;
+            font-size: 0.9em;
+        }
+        .search-result-item .desc {
+            color: #666;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .instructions ol {
+            padding-left: 20px;
+            color: #856404;
+        }
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        .download-links {
+            margin-top: 15px;
+        }
+        .download-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #17a2b8;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .download-link:hover {
+            background: #138496;
+        }
+        .info-box {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            color: #0c5460;
+        }
+        .copy-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .copy-btn:hover {
+            background: #5a6268;
+        }
+        .copied {
+            color: #28a745;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐍 Python离线包管理工具</h1>
+            <p>为离线环境下载Python包 | 生成下载和安装命令</p>
+        </div>
+        <div class="content">
+            <div class="section">
+                <h2>📦 第一步：选择系统和Python版本</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>操作系统</label>
+                        <select id="platform">
+                            <option value="">-- 请选择 --</option>
+                            <optgroup label="Windows">
+                                <option value="win_amd64">Windows (x86_64)</option>
+                                <option value="win32">Windows (32位)</option>
+                            </optgroup>
+                            <optgroup label="Linux">
+                                <option value="manylinux2014_x86_64">Linux (x86_64)</option>
+                                <option value="manylinux2014_aarch64">Linux (ARM64)</option>
+                            </optgroup>
+                            <optgroup label="macOS">
+                                <option value="macosx_10_9_x86_64">macOS (Intel x86_64)</option>
+                                <option value="macosx_11_0_arm64">macOS (Apple Silicon)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Python版本</label>
+                        <select id="python-version">
+                            <option value="">-- 请选择 --</option>
+                            <option value="3.8">Python 3.8</option>
+                            <option value="3.9">Python 3.9</option>
+                            <option value="3.10">Python 3.10</option>
+                            <option value="3.11">Python 3.11</option>
+                            <option value="3.12">Python 3.12</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section search-section">
+                <h2>🔍 第二步：搜索并添加包</h2>
+                <div class="form-group">
+                    <label>搜索Python包</label>
+                    <input type="text" id="search-input" placeholder="输入包名，如 numpy, pandas, requests...">
+                    <div class="search-results" id="search-results"></div>
+                </div>
+                <div id="selected-packages" class="package-list"></div>
+            </div>
+
+            <div class="section">
+                <h2>⚙️ 第三步：生成命令</h2>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="generateCommands()">📋 生成命令</button>
+                    <button class="btn btn-success" onclick="downloadPackages()">📥 直接下载包</button>
+                </div>
+            </div>
+
+            <div class="section" id="commands-section" style="display: none;">
+                <h2>📝 生成的命令</h2>
+                <div class="commands-output" id="commands-output"></div>
+            </div>
+
+            <div class="instructions">
+                <h3>📖 使用说明</h3>
+                <ol>
+                    <li><strong>在联网电脑上：</strong>选择你的目标系统和Python版本，添加需要下载的包，点击"直接下载包"获取.whl文件</li>
+                    <li><strong>复制命令：</strong>也可以点击"生成命令"获取pip下载命令，在联网电脑上执行</li>
+                    <li><strong>传输文件：</strong>将下载的.whl文件或包含所有包的文件夹复制到U盘中</li>
+                    <li><strong>离线电脑上：</strong>将.whl文件放到一个文件夹（如 <code>wheels</code>），然后运行安装命令</li>
+                    <li><strong>安装命令：</strong>使用 <code>pip install --no-index --find-links=./wheels 包名</code> 进行离线安装</li>
+                </ol>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 小提示：</strong>
+                <ul style="margin-top: 10px; padding-left: 20px;">
+                    <li>建议将要安装的所有包放在同一个文件夹中，方便管理</li>
+                    <li>如果某个包依赖其他包，需要同时下载所有依赖包</li>
+                    <li>使用 <code>pip download 包名 --dest ./wheels</code> 可以直接下载到指定文件夹</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedPackages = [];
+
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const selectedPackagesDiv = document.getElementById('selected-packages');
+        const commandsSection = document.getElementById('commands-section');
+        const commandsOutput = document.getElementById('commands-output');
+
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            if (query.length < 2) {
+                searchResults.classList.remove('active');
+                return;
+            }
+            searchTimeout = setTimeout(() => searchPackages(query), 300);
+        });
+
+        async function searchPackages(query) {
+            try {
+                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                const results = await response.json();
+                displaySearchResults(results);
+            } catch (error) {
+                console.error('Search error:', error);
+            }
+        }
+
+        function displaySearchResults(results) {
+            if (results.length === 0) {
+                searchResults.innerHTML = '<div class="search-result-item">未找到相关包</div>';
+            } else {
+                searchResults.innerHTML = results.map(r => `
+                    <div class="search-result-item" onclick="addPackage('${r.name}', '${r.version}')">
+                        <div class="name">${r.name}</div>
+                        <div class="version">版本: ${r.version}</div>
+                        <div class="desc">${r.description || '无描述'}</div>
+                    </div>
+                `).join('');
+            }
+            searchResults.classList.add('active');
+        }
+
+        function addPackage(name, version) {
+            if (!selectedPackages.find(p => p.name === name)) {
+                selectedPackages.push({name, version: version || 'latest'});
+                renderSelectedPackages();
+            }
+            searchInput.value = '';
+            searchResults.classList.remove('active');
+        }
+
+        function removePackage(name) {
+            selectedPackages = selectedPackages.filter(p => p.name !== name);
+            renderSelectedPackages();
+        }
+
+        function renderSelectedPackages() {
+            if (selectedPackages.length === 0) {
+                selectedPackagesDiv.innerHTML = '<p style="color: #666;">尚未添加任何包</p>';
+            } else {
+                selectedPackagesDiv.innerHTML = selectedPackages.map(p => `
+                    <div class="package-item">
+                        <div>
+                            <div class="package-name">${p.name}</div>
+                            <div class="package-version">版本: ${p.version}</div>
+                        </div>
+                        <button class="remove-btn" onclick="removePackage('${p.name}')">移除</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function generateCommands() {
+            const platform = document.getElementById('platform').value;
+            const pyVersion = document.getElementById('python-version').value;
+            const packages = selectedPackages.map(p => p.name).join(',');
+
+            if (!platform || !pyVersion) {
+                alert('请选择目标和Python版本');
+                return;
+            }
+            if (selectedPackages.length === 0) {
+                alert('请添加至少一个包');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/commands?packages=${encodeURIComponent(packages)}&platform=${platform}&py_version=${pyVersion}`);
+                const data = await response.json();
+                displayCommands(data);
+            } catch (error) {
+                console.error('Error generating commands:', error);
+                alert('生成命令失败，请重试');
+            }
+        }
+
+        function displayCommands(data) {
+            const platformNames = {
+                'win_amd64': 'Windows (x86_64)',
+                'win32': 'Windows (32位)',
+                'manylinux2014_x86_64': 'Linux (x86_64)',
+                'manylinux2014_aarch64': 'Linux (ARM64)',
+                'macosx_10_9_x86_64': 'macOS (Intel)',
+                'macosx_11_0_arm64': 'macOS (Apple Silicon)'
+            };
+
+            commandsOutput.innerHTML = `
+                <div class="command">
+                    <div class="command-label">🎯 目标环境</div>
+                    <div>操作系统: ${platformNames[data.platform] || data.platform}<br>Python版本: ${data.python_version}</div>
+                </div>
+                <div class="command">
+                    <div class="command-label">📥 下载命令（在联网电脑执行）</div>
+                    <div>${data.download_command}</div>
+                    <button class="copy-btn" onclick="copyToClipboard(this, '${data.download_command.replace(/'/g, "\\'")}')">复制命令</button>
+                </div>
+                <div class="command">
+                    <div class="command-label">📦 离线安装命令（在离线电脑执行）</div>
+                    <div>${data.install_command}</div>
+                    <button class="copy-btn" onclick="copyToClipboard(this, '${data.install_command.replace(/'/g, "\\'")}')">复制命令</button>
+                </div>
+                <div class="command">
+                    <div class="command-label">📋 包含的包列表</div>
+                    <div>${data.packages.join(', ')}</div>
+                </div>
+            `;
+            commandsSection.style.display = 'block';
+        }
+
+        function copyToClipboard(btn, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.textContent;
+                btn.textContent = '已复制!';
+                btn.style.background = '#28a745';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#6c757d';
+                }, 2000);
+            });
+        }
+
+        async function downloadPackages() {
+            const platform = document.getElementById('platform').value;
+            const pyVersion = document.getElementById('python-version').value;
+
+            if (!platform || !pyVersion) {
+                alert('请选择目标和Python版本');
+                return;
+            }
+            if (selectedPackages.length === 0) {
+                alert('请添加至少一个包');
+                return;
+            }
+
+            const firstPackage = selectedPackages[0];
+            const version = firstPackage.version === 'latest' ? '' : firstPackage.version;
+
+            try {
+                const response = await fetch('/api/download-package', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        package: firstPackage.name,
+                        version: version || null,
+                        platform: platform,
+                        py_version: pyVersion
+                    })
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = response.headers.get('content-disposition')?.match(/filename="(.+)"/)?.[1] || 'package.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else {
+                    const error = await response.json();
+                    alert('下载失败: ' + (error.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('下载失败，请重试');
+            }
+        }
+
+        renderSelectedPackages();
+    </script>
+</body>
+</html>
